@@ -1,3 +1,13 @@
+dropix (0.4.1-1) unstable; urgency=medium
+
+  * Paquete linyaps (.uab) para amd64 y arm64 generado automaticamente
+    en cada release a partir del .deb.
+  * linglong.yaml: el .deb se lee de /project/debs/ (ll-builder vacia
+    linglong/sources antes de compilar).
+  * Release automatica a partir de la version de debian/changelog.
+
+ -- Deepin en Español <developers@deepinenespanol.org>  Wed, 04 Nov 2026 15:30:00 +0000
+
 dropix (0.4-1) unstable; urgency=medium
 
   * Rebrand from "Tetris" to "Dropix" to avoid infringing Tetris trademark/copyright.

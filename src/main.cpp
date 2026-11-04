@@ -36,7 +36,7 @@ int main(int argc, char *argv[])
         "<span style=' font-size:7pt;'>\"Tetris\" es una marca registrada de Tetris Holding, LLC. "
         "Este proyecto es una implementacion independiente hecha desde cero y no esta afiliado, "
         "patrocinado ni aprobado por The Tetris Company o Tetris Holding, LLC.</span>");
-    dialog.setVersion(DApplication::buildVersion(QStringLiteral("0.4")));
+    dialog.setVersion(DApplication::buildVersion(QStringLiteral("0.4.1")));
     dialog.setWebsiteName("deepinenespanol.org");
     dialog.setWebsiteLink("https://deepinenespanol.org");
 

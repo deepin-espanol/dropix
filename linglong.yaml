@@ -3,7 +3,7 @@ version: "1"
 package:
   id: org.deepinenespanol.dropix
   name: Dropix
-  version: 0.4.0.0
+  version: 0.4.1.0
   kind: app
   description: |
     Block puzzle game for Deepin desktop built with Qt6 and DTK6.
