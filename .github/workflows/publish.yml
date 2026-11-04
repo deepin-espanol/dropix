@@ -116,8 +116,75 @@ jobs:
           path: ${{ steps.deb-info.outputs.path }}
           if-no-files-found: error
 
-  release:
+  # Paquete linyaps (.uab) a partir del .deb ya compilado. Solo hay runners
+  # nativos para amd64 y arm64 (ll-builder no funciona en Docker ni con QEMU).
+  # Si falla, la release se publica igualmente con los .deb.
+  build-uab:
     needs: [check, build-deb]
+    if: needs.check.outputs.release == 'true'
+    continue-on-error: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - arch: amd64
+            runner: ubuntu-24.04
+          - arch: arm64
+            runner: ubuntu-24.04-arm
+    runs-on: ${{ matrix.runner }}
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v7
+
+      - name: Download .deb
+        uses: actions/download-artifact@v5
+        with:
+          name: deb-${{ matrix.arch }}
+          path: debs
+
+      - name: Install ll-builder
+        run: |
+          echo "deb [trusted=yes] https://ppa.linyaps.org.cn/release/Ubuntu_24.04/ ./" | \
+            sudo tee /etc/apt/sources.list.d/linglong.list
+          sudo apt-get update
+          sudo apt-get install -y --no-install-recommends linglong-builder linglong-box
+          # Ubuntu 24.04 restringe los namespaces de usuario que usa ll-box
+          sudo sysctl -w kernel.apparmor_restrict_unprivileged_userns=0 || true
+          ll-builder --version
+
+      - name: Set linyaps version from debian/changelog
+        run: |
+          IFS=. read -r a b c d <<< "${{ needs.check.outputs.version }}"
+          llver="${a:-0}.${b:-0}.${c:-0}.${d:-0}"
+          sed -i "s/^\(  version:\).*/\1 ${llver}/" linglong.yaml
+          grep -n "version:" linglong.yaml
+          ls -l debs/
+
+      - name: Cache linyaps base/runtime
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/linglong-builder
+          key: linglong-builder-${{ matrix.arch }}-${{ hashFiles('linglong.yaml') }}
+          restore-keys: linglong-builder-${{ matrix.arch }}-
+
+      - name: Build and export .uab
+        run: |
+          ll-builder build
+          LANG=C ll-builder export
+          ls -lh *.uab
+
+      - name: Upload .uab as artifact
+        uses: actions/upload-artifact@v7.0.1
+        with:
+          name: uab-${{ matrix.arch }}
+          path: '*.uab'
+          if-no-files-found: error
+
+  release:
+    needs: [check, build-deb, build-uab]
+    # Se publica aunque falle el .uab, siempre que los .deb esten bien
+    if: always() && needs.check.outputs.release == 'true' && needs.build-deb.result == 'success'
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
@@ -127,6 +194,14 @@ jobs:
         uses: actions/download-artifact@v5
         with:
           pattern: deb-*
+          path: debs
+          merge-multiple: true
+
+      - name: Download all .uab
+        uses: actions/download-artifact@v5
+        continue-on-error: true
+        with:
+          pattern: uab-*
           path: debs
           merge-multiple: true
 
@@ -145,5 +220,5 @@ jobs:
           name: ${{ github.event.repository.name }} ${{ needs.check.outputs.tag }}
           body_path: notes.md
           generate_release_notes: true
-          files: debs/*.deb
+          files: debs/*
           fail_on_unmatched_files: true

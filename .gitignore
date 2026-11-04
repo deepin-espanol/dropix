@@ -54,3 +54,9 @@ w/
 *.uab
 linglong/
 
+
+# linyaps (ll-builder)
+debs/
+linglong/
+*.uab
+*.layer

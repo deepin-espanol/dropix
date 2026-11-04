@@ -16,7 +16,7 @@ base: org.deepin.base/25.2.2
 runtime: org.deepin.runtime.dtk/25.2.2
 
 build: |
-  dpkg-deb -X linglong/sources/dropix_*.deb $PREFIX/
+  dpkg-deb -X /project/debs/dropix_*.deb $PREFIX/
   mv $PREFIX/usr/bin $PREFIX/bin
   mv $PREFIX/usr/share $PREFIX/share
   rm -rf $PREFIX/usr
