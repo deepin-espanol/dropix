@@ -1,3 +1,12 @@
+dropix (0.4.2-1) unstable; urgency=medium
+
+  * El icono no se mostraba tras instalar el .deb: añadida la
+    dependencia en hicolor-icon-theme y dimensiones explícitas
+    (width/height) en el SVG del icono.
+  * Mantenedor del paquete actualizado.
+
+ -- Alvaro Samudio <alvarosamudio@protonmail.com>  Sun, 15 Nov 2026 20:22:49 -0500
+
 dropix (0.4.1-1) unstable; urgency=medium
 
   * Paquete linyaps (.uab) para amd64 y arm64 generado automaticamente
